@@ -22,6 +22,7 @@ length(v::ZeroVector) = v.len
 full{T}(v::ZeroVector{T}) = zeros(T, v.len)
 
 convert{T}(::Type{Vector{T}}, v::ZeroVector{T}) = full(v)
+convert{T}(::Type{ZeroVector{T}}, v::ZeroVector) = ZeroVector{T}(length(v))
 
 +(x::AbstractArray, v::ZeroVector) = x
 -(x::AbstractArray, v::ZeroVector) = x
@@ -144,3 +145,11 @@ function promote_eltype{T, S}(A::Array{T}, B::AbstractPDMat{S})
     (convert(Array{R}, A), convert(typeof(B).name.primary{R}, B))
 end
 promote_eltype{T, S}(A::ZeroVector{T}, B::AbstractPDMat{S}) = (ZeroVector{S}(A.len), B)
+
+# utility function to change element type of container
+@inline convert_eltype{T}(::Type{T}, A::AbstractArray) = convert(AbstractArray{T}, A)
+@inline function convert_eltype{T}(::Type{T}, A::AbstractPDMat)
+    R = typeof(A).name.primary
+    convert(R{T}, A)
+end
+@inline convert_eltype{T}(::Type{T}, Z::ZeroVector) = convert(ZeroVector{T}, Z)

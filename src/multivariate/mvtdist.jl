@@ -11,7 +11,7 @@ immutable GenericMvTDist{T<:Real, Cov<:AbstractPDMat} <: AbstractMvTDist
     μ::Vector{T}
     Σ::Cov
 
-    function GenericMvTDist{T,Cov}(df::T, dim::Int, zmean::Bool, μ::Vector{T}, Σ::Cov)
+    function GenericMvTDist(df::T, dim::Int, zmean::Bool, μ::Vector{T}, Σ::AbstractPDMat{T})
       df > zero(df) || error("df must be positive")
       m, S = promote_eltype(μ, Σ)
       new(df, dim, zmean, m, S)
@@ -32,6 +32,16 @@ end
 GenericMvTDist{Cov<:AbstractPDMat, T<:Real, S<:Real}(df::T, μ::Vector{S}, Σ::Cov) = GenericMvTDist(df, μ, Σ, allzeros(μ))
 
 GenericMvTDist{Cov<:AbstractPDMat, T<:Real}(df::T, Σ::Cov) = GenericMvTDist(df, zeros(dim(Σ)), Σ, true)
+
+### Conversion
+function convert{T<:Real}(::Type{GenericMvTDist{T}}, d::GenericMvTDist)
+    S = convert_eltype(T, d.Σ)
+    GenericMvTDist{T, typeof(S)}(T(d.df), d.dim, d.zeromean, convert_eltype(T, d.μ), S)
+end
+function convert{T<:Real}(::Type{GenericMvTDist{T}}, df, dim, zeromean, μ::Union{Vector, ZeroVector}, Σ::AbstractPDMat)
+    S = convert_eltype(T, Σ)
+    GenericMvTDist{T, typeof(S)}(T(df), dim, zeromean, convert_eltype(T, μ), S)
+end
 
 ## Construction of multivariate normal with specific covariance type
 

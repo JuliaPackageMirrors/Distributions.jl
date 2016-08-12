@@ -27,7 +27,7 @@ Wishart(df::Real, S::Cholesky) = Wishart(df, PDMat(S))
 function _wishart_c0(df::Real, S::AbstractPDMat)
     h_df = df / 2
     p = dim(S)
-    h_df * (logdet(S) + p * logtwo) + logmvgamma(p, h_df)
+    h_df * (logdet(S) + p * typeof(df)(logtwo)) + logmvgamma(p, h_df)
 end
 
 
@@ -39,6 +39,16 @@ insupport(d::Wishart, X::Matrix) = size(X) == size(d) && isposdef(X)
 dim(d::Wishart) = dim(d.S)
 size(d::Wishart) = (p = dim(d); (p, p))
 params(d::Wishart) = (d.df, d.S, d.c0)
+
+### Conversion
+function convert{T<:Real}(::Type{Wishart{T}}, d::Wishart)
+    P = convert_eltype(T, d.S)
+    Wishart{T, typeof(P)}(T(d.df), P, T(d.c0))
+end
+function convert{T<:Real}(::Type{Wishart{T}}, df, S::AbstractPDMat, c0)
+    P = convert_eltype(T, S)
+    Wishart{T, typeof(P)}(T(df), P, T(c0))
+end
 
 #### Show
 
