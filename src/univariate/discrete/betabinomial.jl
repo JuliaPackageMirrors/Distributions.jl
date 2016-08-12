@@ -27,6 +27,10 @@ immutable BetaBinomial <: DiscreteUnivariateDistribution
     end
 end
 
+BetaBinomial{T<:Real}(n::Integer, α::T, β::T) = BetaBinomial{T}(n, α, β)
+BetaBinomial(n::Integer, α::Real, β::Real) = BetaBinomial(n, promote(α, β)...)
+BetaBinomial(n::Integer, α::Integer, β::Integer) = BetaBinomial(n, Float64(α), Float64(β))
+
 @distr_support BetaBinomial 0 d.n
 insupport(d::BetaBinomial, x::Real) = 0 <= x <= d.n
 

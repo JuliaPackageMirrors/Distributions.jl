@@ -24,7 +24,7 @@ immutable Binomial <: DiscreteUnivariateDistribution
     n::Int
     p::Float64
 
-    function Binomial(n::Real, p::Real)
+    function Binomial(n, p)
         @check_args(Binomial, n >= zero(n))
         @check_args(Binomial, zero(p) <= p <= one(p))
         new(n, p)
