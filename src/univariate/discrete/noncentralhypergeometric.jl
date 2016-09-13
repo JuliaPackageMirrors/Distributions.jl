@@ -51,11 +51,11 @@ immutable FisherNoncentralHypergeometric <: NoncentralHypergeometric
 end
 
 # Properties
-function _P(d::FisherNoncentralHypergeometric, k::Int)
+@compat function _P(d::FisherNoncentralHypergeometric, k::Int)
     y = support(d)
-    p = -log(d.ns + 1) - lbeta(d.ns - y + 1, y + 1) -
-            log(d.nf + 1) - lbeta(d.nf - d.n + y + 1, d.n - y + 1) +
-            xlogy(y, d.ω) + xlogy(k, y)
+    p = -log.(d.ns + 1) - lbeta.(d.ns - y + 1, y + 1) -
+            log.(d.nf + 1) - lbeta.(d.nf - d.n + y + 1, d.n - y + 1) +
+            xlogy.(y, d.ω) + xlogy.(k, y)
     logsumexp(p)
 end
 
@@ -66,8 +66,8 @@ function _mode(d::FisherNoncentralHypergeometric)
     -2*C / (B - sqrt(B^2-4*A*C))
 end
 
-mean(d::FisherNoncentralHypergeometric) = exp(_P(d,1) - _P(d,0))
-var(d::FisherNoncentralHypergeometric) = exp(_P(d,2) - _P(d,0)) - exp(2*(_P(d,1) - _P(d,0)))
+mean(d::FisherNoncentralHypergeometric) = @compat(exp.(_P(d,1) - _P(d,0)))
+@compat var(d::FisherNoncentralHypergeometric) = exp.(_P(d,2) - _P(d,0)) - exp.(2*(_P(d,1) - _P(d,0)))
 mode(d::FisherNoncentralHypergeometric) = floor(Int, _mode(d))
 
 logpdf(d::FisherNoncentralHypergeometric, k::Int) =
